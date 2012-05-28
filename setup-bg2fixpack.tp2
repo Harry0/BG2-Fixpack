@@ -1,7 +1,7 @@
 BACKUP ~bg2fixpack/backup~ // location to store files for uninstall purposes
 AUTHOR ~webmaster@gibberlings3.net~ // email address displayed if install fails
 
-VERSION ~v9.14~
+VERSION ~v9.15~
 
 README ~bg2fixpack/readme-bg2fixpack.html~
 
@@ -33011,293 +33011,50 @@ COPY_EXISTING ~blun30.itm~  ~override~ // foa +5
 /////                                                  \\\\\
 
 BEGIN @24 DESIGNATED 115
-DEPRECATED ~Buggy! Still undergoing revision.~
 GROUP @2
+REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~tobex_ini/tobexcore.ini~ @1100              // This component requires TobEx
 
 // dummy file allows detection of this component
 COPY_EXISTING ~sw1h01.itm~ ~override/cdfp0115.g3~
 
-COPY ~bg2fixpack/spl/cdbrblp.spl~ ~override/cdbrblp.spl~
-     ~bg2fixpack/spl/cdbrblp.spl~ ~override/cdbrbrp.spl~
-     ~bg2fixpack/spl/cdbrblp.spl~ ~override/cddruear.spl~
-     ~bg2fixpack/spl/cdbrblp.spl~ ~override/cddrufir.spl~
-     ~bg2fixpack/spl/cdbrblp.spl~ ~override/cdearthr.spl~
-     ~bg2fixpack/spl/cdbrblp.spl~ ~override/cdfirern.spl~
-     ~bg2fixpack/spl/cdbrblp.spl~ ~override/cdgoliro.spl~
-     ~bg2fixpack/spl/cdbrblp.spl~ ~override/cdmindfl.spl~
-     ~bg2fixpack/spl/cdbrblp.spl~ ~override/cdplyjel.spl~
-     ~bg2fixpack/spl/cdbrblp.spl~ ~override/cdplytro.spl~
-     ~bg2fixpack/spl/cdbrblp.spl~ ~override/cdpolyra.spl~
-     ~bg2fixpack/spl/cdbrblp.spl~ ~override/cdshakti.spl~
-     ~bg2fixpack/spl/cdbrblp.spl~ ~override/cdslayer.spl~
-     ~bg2fixpack/spl/cdbrblp.spl~ ~override/cdsquirp.spl~
-     ~bg2fixpack/spl/cdbrblp.spl~ ~override/cdtrolla.spl~
-     ~bg2fixpack/spl/cdbrblp.spl~ ~override/cdwolfgr.spl~
-     ~bg2fixpack/spl/cdbrblp.spl~ ~override/cdwolfm.spl~
-  WRITE_ASCIIE 0xac "%DEST_RES%" #8
-  WRITE_SHORT  0xac 100 // restore probability
-
-COPY_EXISTING ~brblp.itm~    ~override~ // Shapeshifts Black Bear
-              ~brbrp.itm~    ~override~ // Shapeshifts Brown Bear, Shapeshifts Werewolf, Shapeshifts Greater Werewolf
-              ~druear.itm~   ~override~ // earth elemental transformation
-              ~drufir.itm~   ~override~ // fire elemental transformation
-              ~earthrn.itm~  ~override~ // Shapechange Earth Elemental
-              ~firern.itm~   ~override~ // Shapechange Fire Elemental
-              ~goliro.itm~   ~override~ // used by iron golems, Shapechange Iron Golem
-              ~mindflay.itm~ ~override~ // used by mind flayers, Shapechange Mind Flayer
-              ~plyjelly.itm~ ~override~ // jelly from cloak of sewers
-              ~plytroll.itm~ ~override~ // troll from cloak of sewers
-              ~polyrat.itm~  ~override~ // rat from cloak of sewers
-              ~shakti1.itm~  ~override~ // short sword +4
-              ~slayerwp.itm~ ~override~ // slayer, Slayer Change
-              ~squirp.itm~   ~override~ // Sphere of Chaos
-              ~trollall.itm~ ~override~ // Shapechange Giant Troll
-              ~wolfgr.itm~   ~override~ // Shapechange Greater Wolfwere
-              ~wolfm.itm~    ~override~ // Shapeshifts Wolf
-  PATCH_IF (SOURCE_SIZE > 0x71) BEGIN
-    READ_LONG   0x64 "abil_off" ELSE 0
-    READ_SHORT  0x68 "abil_num" ELSE 0
-    READ_LONG   0x6a "fx_off"   ELSE 0
-    READ_SHORT  0x70 "fx_num"   ELSE 0
-    SET "new_fx" = 1
-    WRITE_SHORT  0x70 ("%fx_num%" + "%new_fx%")
-    FOR (index2 = 0 ; index2 < abil_num ; index2 = index2 + 1) BEGIN // cycle thru abilities
-      READ_SHORT  ("%abil_off%" + 0x20 + ("%index2%" * 0x38)) "abil_fx_idx"
-      WRITE_SHORT ("%abil_off%" + 0x20 + ("%index2%" * 0x38)) ("%abil_fx_idx%" + "%new_fx%")
+// Add the non-dispellable flag to shapechange weapons if TobEx is detected
+// This will prevent the natural weapons of the shapechange forms (i.e. claws and such) from being removed by Dispel Magic and Dead Magic Zones
+ACTION_FOR_EACH ~file~ IN                                                          // for each of the following files
+               ~brblp~                                                             // Shapeshifts Black Bear
+               ~brbrp~                                                             // Shapeshifts Brown Bear, Shapeshifts Werewolf, Shapeshifts Greater Werewolf
+              ~druear~                                                             // earth elemental transformation
+              ~drufir~                                                             // fire elemental transformation
+             ~earthrn~                                                             // Shapechange Earth Elemental
+              ~firern~                                                             // Shapechange Fire Elemental
+              ~goliro~                                                             // used by iron golems, Shapechange Iron Golem
+            ~mindflay~                                                             // used by mind flayers, Shapechange Mind Flayer
+            ~plyjelly~                                                             // jelly from cloak of sewers
+             ~plysala~                                                             // Fire Salamander (Avenger kit form)
+             ~plyspid~                                                             // Sword Spider (Avenger kit form)
+            ~plytroll~                                                             // troll from cloak of sewers
+            ~plywyvrn~                                                             // Baby Wyvern shape attack
+             ~polyrat~                                                             // rat from cloak of sewers
+             ~shakti1~                                                             // short sword +4
+            ~slayerwp~                                                             // slayer, Slayer Change
+              ~squirp~                                                             // Sphere of Chaos
+            ~trollall~                                                             // Shapechange Giant Troll
+              ~wolfgr~                                                             // Shapechange Greater Wolfwere
+               ~wolfm~                                                             // Shapeshifts Wolf
+BEGIN                                                                              // execute the following
+ACTION_IF FILE_EXISTS_IN_GAME ~%file%.itm~ BEGIN                                   // if the designated file with an ITM extension exists
+COPY_EXISTING ~%file%.itm~ ~override~
+  PATCH_IF (SOURCE_SIZE > 0x71) THEN BEGIN                                         // protects against invalid files
+// =============================================================================== // the actual work starts from here
+    READ_BYTE 0x1b "flags"
+    PATCH_IF (("%flags%" BAND "0b00000001") = "0b00000000") BEGIN                  // if bit 24 isn't set
+      WRITE_BYTE "0x1b" ("%flags%" BOR "0b00000001")                               // set bit 24
     END
-    INSERT_BYTES   ("%fx_off%"       ) 0x30
-      WRITE_SHORT  ("%fx_off%"       ) 72  // change specifics value
-      WRITE_BYTE   ("%fx_off%" + 0x02) 1   // target: self
-      WRITE_LONG   ("%fx_off%" + 0x08) 6   // specifics.ids
-      WRITE_BYTE   ("%fx_off%" + 0x0c) 2   // instant/while equipped
-      WRITE_BYTE   ("%fx_off%" + 0x12) 100 // probability
-  END
-  BUT_ONLY_IF_IT_CHANGES
+// =============================================================================== // the actual work ends here
+END                                                                                // ends file size check
+BUT_ONLY_IF_IT_CHANGES
+END                                                                                // ends ACTION_IF FILE_EXISTS_IN_GAME block
+END                                                                                // ends ACTION_FOR_EACH block
 
-// all 'return to human' spells need to set specifics back to 0
-COPY_EXISTING ~spin122.spl~  ~override~
-              ~spin123.spl~  ~override~
-              ~spin124.spl~  ~override~
-              ~spin150.spl~  ~override~
-              ~spin151.spl~  ~override~
-              ~spin152.spl~  ~override~
-              ~spin153.spl~  ~override~
-              ~spin154.spl~  ~override~
-              ~spin155.spl~  ~override~
-              ~spin156.spl~  ~override~
-              ~spin157.spl~  ~override~
-              ~spin529.spl~  ~override~
-              ~spin550.spl~  ~override~
-              ~spin667.spl~  ~override~
-              ~spin718.spl~  ~override~
-              ~spin779.spl~  ~override~
-              ~spin992.spl~  ~override~
-              ~spinhum.spl~  ~override~
-              ~spmdslay.spl~ ~override~
-              ~spwi489.spl~  ~override~
-              ~spwi490.spl~  ~override~
-              ~spwi491.spl~  ~override~
-              ~spwi493.spl~  ~override~
-              ~spwi494.spl~  ~override~
-              ~spwi495.spl~  ~override~
-              ~spwi496.spl~  ~override~
-              ~spwi497.spl~  ~override~
-              ~spwi498.spl~  ~override~
-              ~spwi499.spl~  ~override~
-              ~spwm113.spl~  ~override~
-  READ_LONG  0x64 "abil_off" ELSE 0
-  READ_SHORT 0x68 "abil_num" ELSE 0
-  READ_LONG  0x6a "fx_off"   ELSE 0
-  SET "fx_delta" = 0
-  FOR (index = 0 ; index < abil_num ; index = index + 1) BEGIN
-    READ_SHORT ("%abil_off%" + 0x1e + (0x28 * "%index%")) "abil_fx_num"
-    READ_SHORT ("%abil_off%" + 0x20 + (0x28 * "%index%")) "abil_fx_idx"
-    SET "abil_fx_idx" = ("%abil_fx_idx%" + "%fx_delta%")
-    FOR (index2 = 0 ; index2 < abil_fx_num ; index2 = index2 + 1) BEGIN
-      SET "specifics" = 0
-      READ_BYTE  ("%fx_off%" +        (("%abil_fx_idx%" + "%index2%") * 0x30)) "opcode"
-      READ_ASCII ("%fx_off%" + 0x14 + (("%abil_fx_idx%" + "%index2%") * 0x30)) "item"
-      PATCH_IF (("%opcode%" = 112) AND
-                (("%item%" STRING_COMPARE_CASE "brblp" = 0) OR
-                 ("%item%" STRING_COMPARE_CASE "brbrp" = 0) OR
-                 ("%item%" STRING_COMPARE_CASE "druear" = 0) OR
-                 ("%item%" STRING_COMPARE_CASE "drufir" = 0) OR
-                 ("%item%" STRING_COMPARE_CASE "earthrn" = 0) OR
-                 ("%item%" STRING_COMPARE_CASE "firern" = 0) OR
-                 ("%item%" STRING_COMPARE_CASE "goliro" = 0) OR
-                 ("%item%" STRING_COMPARE_CASE "mindflay" = 0) OR
-                 ("%item%" STRING_COMPARE_CASE "plyjelly" = 0) OR
-                 ("%item%" STRING_COMPARE_CASE "plytroll" = 0) OR
-                 ("%item%" STRING_COMPARE_CASE "polyrat" = 0) OR
-                 ("%item%" STRING_COMPARE_CASE "shakti1" = 0) OR
-                 ("%item%" STRING_COMPARE_CASE "slayerwp" = 0) OR
-                 ("%item%" STRING_COMPARE_CASE "squirp" = 0) OR
-                 ("%item%" STRING_COMPARE_CASE "trollall" = 0) OR
-                 ("%item%" STRING_COMPARE_CASE "wolfgr" = 0) OR
-                 ("%item%" STRING_COMPARE_CASE "wolfm" = 0))) BEGIN  // create item
-        FOR (index3 = 21 ; index3 < 27 ; index3 = index3 + 1) BEGIN
-          INSERT_BYTES   ("%fx_off%" +        ("%abil_fx_idx%" * 0x30)) 0x30
-            WRITE_SHORT  ("%fx_off%" +        ("%abil_fx_idx%" * 0x30)) 177                // use eff
-            WRITE_BYTE   ("%fx_off%" + 0x02 + ("%abil_fx_idx%" * 0x30)) 1                  // self
-            WRITE_LONG   ("%fx_off%" + 0x04 + ("%abil_fx_idx%" * 0x30)) "%index3%"         // value (player1 - player6)
-            WRITE_LONG   ("%fx_off%" + 0x08 + ("%abil_fx_idx%" * 0x30)) 2                  // object.ids
-            WRITE_LONG   ("%fx_off%" + 0x0c + ("%abil_fx_idx%" * 0x30)) 9                  // instant/permanent
-            WRITE_BYTE   ("%fx_off%" + 0x12 + ("%abil_fx_idx%" * 0x30)) 100                // probability
-            WRITE_ASCII ("%fx_off%" + 0x14 + ("%abil_fx_idx%" * 0x30)) "cdpaw000" // file
-        END
-        SET "abil_fx_num" = "%abil_fx_num%" + 6
-        SET "index2" = "%index2%" + 6
-        SET "fx_delta" = "%fx_delta%" + 6
-      END
-    END
-    WRITE_SHORT ("%abil_off%" + 0x1e + (0x28 * "%index%")) "%abil_fx_num%"
-    WRITE_SHORT ("%abil_off%" + 0x20 + (0x28 * "%index%")) "%abil_fx_idx%"
-  END
-  BUT_ONLY_IF_IT_CHANGES
-
-COPY ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw000.eff~
-  WRITE_LONG 0x1c 0 // specifics value
-  WRITE_LONG 0x24 9 // instant/permanent
-  SET "specifics" = 181
-
-COPY ~bg2fixpack/eff/cdpaw181.eff~ ~override~
-     ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw182.eff~
-     ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw183.eff~
-     ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw184.eff~
-     ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw185.eff~
-     ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw186.eff~
-     ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw187.eff~
-     ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw188.eff~
-     ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw189.eff~
-     ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw190.eff~
-     ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw191.eff~
-     ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw192.eff~
-     ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw193.eff~
-     ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw194.eff~
-     ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw195.eff~
-     ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw196.eff~
-     ~bg2fixpack/eff/cdpaw181.eff~ ~override/cdpaw197.eff~
-  WRITE_LONG 0x1c "%specifics%"
-  SET "specifics" = "%specifics%" + 1
-
-//COPY_EXISTING_REGEXP GLOB ~^.+\.itm$~ ~override~
-//                          ~^.+\.spl$~ ~override~
-COPY_EXISTING ~bolt05.itm~   ~override~ // 194
-              ~clck04.itm~   ~override~ // 197
-              ~clck27.itm~   ~override~ // 189
-              ~figure01.itm~ ~override~ // 192
-              ~spcl611.spl~  ~override~ // 182
-              ~spcl612.spl~  ~override~ // 197
-              ~spcl613.spl~  ~override~ // 181
-              ~spcl643.spl~  ~override~ // 182
-              ~spcl644.spl~  ~override~ // 182
-              ~spin107.spl~  ~override~ // 182
-              ~spin110.spl~  ~override~ // 197
-              ~spin111.spl~  ~override~ // 181
-              ~spin152.spl~  ~override~ // 188
-              ~spin153.spl~  ~override~ // 187
-              ~spin154.spl~  ~override~ // 195
-              ~spin155.spl~  ~override~ // 196
-              ~spin156.spl~  ~override~ // 186
-              ~spin157.spl~  ~override~ // 185
-              ~spin717.spl~  ~override~ // 193
-              ~spin823.spl~  ~override~ // 193
-              ~sppr731.spl~  ~override~ // 184
-              ~sppr732.spl~  ~override~ // 183
-              ~spwi496.spl~  ~override~ // 189
-              ~spwi711.spl~  ~override~ // 194
-              ~wand09.itm~   ~override~ // 194
-  READ_LONG  0x64 "abil_off" ELSE 0
-  READ_SHORT 0x68 "abil_num" ELSE 0
-  READ_LONG  0x6a "fx_off"   ELSE 0
-  PATCH_IF ("%SOURCE_FILE%" STRING_COMPARE_REGEXP "^.+\.spl" = 0) BEGIN
-    SET "abil_length" = 0x28
-  END ELSE BEGIN
-    SET "abil_length" = 0x38
-  END
-  SET "fx_delta" = 0
-  FOR (index = 0 ; index < abil_num ; index = index + 1) BEGIN
-    READ_SHORT ("%abil_off%" + 0x1e + ("%abil_length%" * "%index%")) "abil_fx_num"
-    READ_SHORT ("%abil_off%" + 0x20 + ("%abil_length%" * "%index%")) "abil_fx_idx"
-    SET "abil_fx_idx" = ("%abil_fx_idx%" + "%fx_delta%")
-    FOR (index2 = 0 ; index2 < abil_fx_num ; index2 = index2 + 1) BEGIN
-      SET "specifics" = 0
-      READ_BYTE  ("%fx_off%" +        (("%abil_fx_idx%" + "%index2%") * 0x30)) "opcode"
-      READ_ASCII ("%fx_off%" + 0x14 + (("%abil_fx_idx%" + "%index2%") * 0x30)) "item"
-      PATCH_IF ("%opcode%" = 111) BEGIN
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "brblp" = 0) BEGIN
-          SET "specifics" = 181
-        END ELSE
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "brbrp" = 0) BEGIN
-          SET "specifics" = 182
-        END ELSE
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "druear" = 0) BEGIN
-          SET "specifics" = 183
-        END ELSE
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "drufir" = 0) BEGIN
-          SET "specifics" = 184
-        END ELSE
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "earthrn" = 0) BEGIN
-          SET "specifics" = 185
-        END ELSE
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "firern" = 0) BEGIN
-          SET "specifics" = 186
-        END ELSE
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "goliro" = 0) BEGIN
-          SET "specifics" = 187
-        END ELSE
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "mindflay" = 0) BEGIN
-          SET "specifics" = 188
-        END ELSE
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "plyjelly" = 0) BEGIN
-          SET "specifics" = 189
-        END ELSE
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "plytroll" = 0) BEGIN
-          SET "specifics" = 190
-        END ELSE
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "polyrat" = 0) BEGIN
-          SET "specifics" = 191
-        END ELSE
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "shakti1" = 0) BEGIN
-          SET "specifics" = 192
-        END ELSE
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "slayerwp" = 0) BEGIN
-          SET "specifics" = 193
-        END ELSE
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "squirp" = 0) BEGIN
-          SET "specifics" = 194
-        END ELSE
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "trollall" = 0) BEGIN
-          SET "specifics" = 195
-        END ELSE
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "wolfgr" = 0) BEGIN
-          SET "specifics" = 196
-        END ELSE
-        PATCH_IF ("%item%" STRING_COMPARE_CASE "wolfm" = 0) BEGIN
-          SET "specifics" = 197
-        END
-        PATCH_IF ("%specifics%" != 0) BEGIN
-          SET "foo" = "%specifics%"
-          FOR (index3 = 21 ; index3 < 27 ; index3 = index3 + 1) BEGIN
-            INSERT_BYTES   ("%fx_off%" +        ("%abil_fx_idx%" * 0x30)) 0x30
-              WRITE_SHORT  ("%fx_off%" +        ("%abil_fx_idx%" * 0x30)) 177                // use eff
-              WRITE_BYTE   ("%fx_off%" + 0x02 + ("%abil_fx_idx%" * 0x30)) 1                  // self
-              WRITE_LONG   ("%fx_off%" + 0x04 + ("%abil_fx_idx%" * 0x30)) "%index3%"         // value (player1 - player6)
-              WRITE_LONG   ("%fx_off%" + 0x08 + ("%abil_fx_idx%" * 0x30)) 2                  // object.ids
-              WRITE_LONG   ("%fx_off%" + 0x0c + ("%abil_fx_idx%" * 0x30)) 1                  // instant/permanent until death
-              WRITE_BYTE   ("%fx_off%" + 0x12 + ("%abil_fx_idx%" * 0x30)) 100                // probability
-              WRITE_ASCIIE ("%fx_off%" + 0x14 + ("%abil_fx_idx%" * 0x30)) "cdpaw%specifics%" // file
-          END
-          SET "abil_fx_num" = "%abil_fx_num%" + 6
-          SET "index2" = "%index2%" + 6
-          SET "fx_delta" = "%fx_delta%" + 6
-        END
-      END
-    END
-    WRITE_SHORT ("%abil_off%" + 0x1e + ("%abil_length%" * "%index%")) "%abil_fx_num%"
-    WRITE_SHORT ("%abil_off%" + 0x20 + ("%abil_length%" * "%index%")) "%abil_fx_idx%"
-  END
-  BUT_ONLY_IF_IT_CHANGES
 
 /////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
 /////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\/////\\\\\
